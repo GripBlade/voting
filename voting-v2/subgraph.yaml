@@ -1,0 +1,29 @@
+specVersion: 1.0.0
+indexerHints:
+  prune: auto
+schema:
+  file: ./schema.graphql
+dataSources:
+  - kind: ethereum
+    name: Create
+    network: sepolia
+    source:
+      address: "0x01d7027022cAedfb72bF2E6d20AF1246C4de5099"
+      abi: Create
+      startBlock: 6887147
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.7
+      language: wasm/assemblyscript
+      entities:
+        - CandidateCreate
+        - VoterCreated
+      abis:
+        - name: Create
+          file: ./abis/Create.json
+      eventHandlers:
+        - event: CandidateCreate(indexed uint256,string,string,string,uint256,address,string)
+          handler: handleCandidateCreate
+        - event: VoterCreated(indexed uint256,string,string,address,uint256,bool,uint256,string)
+          handler: handleVoterCreated
+      file: ./src/create.ts

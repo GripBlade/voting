@@ -1,0 +1,28 @@
+type CandidateCreate @entity(immutable: true) {
+  id: Bytes!
+  candidateId: BigInt! # uint256
+  age: String! # string
+  name: String! # string
+  image: String! # string
+  voteCount: BigInt! # uint256
+  _address: Bytes! # address
+  ipfs: String! # string
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type VoterCreated @entity(immutable: true) {
+  id: Bytes!
+  voter_voterId: BigInt! # uint256
+  voter_name: String! # string
+  voter_image: String! # string
+  voter_address: Bytes! # address
+  voter_allowed: BigInt! # uint256
+  voter_voted: Boolean! # bool
+  voter_vote: BigInt! # uint256
+  voter_ipfs: String! # string
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
