@@ -38,10 +38,9 @@ export const VotingProvider = ({children}) => {
     const [voterAddress, setVoterAddress] = useState([]);
 
     const isUseTheTheGraph = true;
-    const SEPOLIA_URL = process.env.SEPOLIA_SEPOLIA_URLURL;
 
     const client = new ApolloClient({
-        uri: process.env.SEPOLIA_URL,
+        uri: "https://api.studio.thegraph.com/query/91891/voting/v0.0.1\n",
         cache: new InMemoryCache(),
     })
 
@@ -291,11 +290,60 @@ export const VotingProvider = ({children}) => {
             setError("Something went wrong, check your API Key");
         }
     };
+    const GET_CANDIDATES = gql`
+        query {
+            candidateCreates {
+                id
+                candidateId
+                age
+                name
+                image
+                voteCount
+                _address
+                ipfs
+                blockNumber
+                blockTimestamp
+                transactionHash
+            }
+        }
+    `;
 
     const getNewCandidate = async () => {
         const address = await checkIfWalletIsConnected();
         if (address) {
             if (isUseTheTheGraph) {
+                try {
+                    // 执行 GraphQL 查询
+                    const { data } = await client.query({
+                        query: GET_CANDIDATES,
+                    });
+
+                    console.log('data***********',data); // 打印返回的 data
+
+
+                    if (data) {
+                        const items = data.candidateCreates.map(candidate => ({
+                            age: candidate.age,
+                            name: candidate.name,
+                            candidateID: candidate.candidateId, // 这里没有 toNumber() 转换，因为 candidateId 是字符串
+                            image: candidate.image,
+                            totalVote: parseInt(candidate.voteCount), // 将字符串转换为数字
+                            ipfs: candidate.ipfs,
+                            address: candidate._address,
+                        }));
+
+
+                        console.log(items, 'items');
+                        setCandidateArray(items);
+                        setCandidateLength(items.length);
+                    } else {
+                        console.error("Candidates data is undefined or not available");
+                        setError("No candidates data found.");
+                    }
+                } catch (error) {
+                    console.error("Error fetching candidates from The Graph:", error);
+                    setError("Failed to fetch candidates from The Graph.");
+                }
 
             } else {
                 const web3Modal = new Web3Modal();
