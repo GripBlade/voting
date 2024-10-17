@@ -6,7 +6,7 @@ import voting from "./Create.json";
  * sepolia arbitrum合约和owner地址
  * 0xa8592EbFd31247BE545eA42c10BfF47288Cc17cf
  */
-export const VotingAddress = "0x5FbDB2315678afecb367f032d93F642f64180aa3"
+export const VotingAddress = "0x01d7027022cAedfb72bF2E6d20AF1246C4de5099"
 export const CONTRACT_OWNER = voting.abi;
 
 //POLYGON TEST
@@ -32,6 +32,17 @@ const networks = {
     },
     rpcUrls: ["https://rpc-amoy.polygon.technology/"],
     blockExplorerUrls: ["https://www.oklink.com/amoy"],
+  },
+  sepolia: {
+    chainId: `0x${Number(11155111).toString(16)}`, // Sepolia 的链 ID
+    chainName: "Sepolia",
+    nativeCurrency: {
+      name: "ETH",
+      symbol: "ETH",
+      decimals: 18,
+    },
+    rpcUrls: ["https://eth-sepolia.g.alchemy.com/v2/wZb4SJVr0oPLbgXumPQ6UTpZgNvcrPky"], // 使用你的 Infura 项目 ID
+    blockExplorerUrls: ["https://sepolia.etherscan.io/"],
   },
   arbitrum:{
     chainId: `0x${Number(421614).toString(16)}`,
@@ -128,7 +139,7 @@ const changeNetwork = async ({ networkName }) => {
 };
 
 export const handleNetworkSwitch = async () => {
-  const networkName = "localhost";
+  const networkName = "sepolia";
   await changeNetwork({ networkName });
 };
 //END  OF NETWORK-------
