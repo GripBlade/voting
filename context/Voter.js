@@ -4,6 +4,8 @@ import {ethers} from "ethers";
 import axios from "axios";
 import {useRouter} from "next/router";
 import {JWT} from "./JWT";
+import ApolloClient, { gql, InMemoryCache } from 'apollo-boost'
+
 
 //INTERNAL IMPORT
 import {
@@ -34,6 +36,14 @@ export const VotingProvider = ({children}) => {
     const [voterArray, setVoterArray] = useState();
     const [voterLength, setVoterLength] = useState("");
     const [voterAddress, setVoterAddress] = useState([]);
+
+    const isUseTheTheGraph = true;
+    const SEPOLIA_URL = process.env.SEPOLIA_SEPOLIA_URLURL;
+
+    const client = new ApolloClient({
+        uri: process.env.SEPOLIA_URL,
+        cache: new InMemoryCache(),
+    })
 
     const checkIfWalletIsConnected = async () => {
         if (!window.ethereum) return setError("Please Install MetaMask");
@@ -172,6 +182,7 @@ export const VotingProvider = ({children}) => {
                 const contract = fetchContract(signer);
                 //VOTR LIST
                 const voterListData = await contract.getVoterList();
+                console.log('voterListData***********', voterListData)
                 setVoterAddress(voterListData);
 
                 const items = await Promise.all(
@@ -284,35 +295,36 @@ export const VotingProvider = ({children}) => {
     const getNewCandidate = async () => {
         const address = await checkIfWalletIsConnected();
         if (address) {
-            const web3Modal = new Web3Modal();
-            const connection = await web3Modal.connect();
-            const provider = new ethers.providers.Web3Provider(connection);
-            const signer = provider.getSigner();
-            const contract = fetchContract(signer);
-            //
-            const allCandidate = await contract.getCandidate();
+            if (isUseTheTheGraph) {
 
-            const items = await Promise.all(
-                allCandidate.map(async (el) => {
-                    const singleCandidateData = await contract.getCandidateData(el);
+            } else {
+                const web3Modal = new Web3Modal();
+                const connection = await web3Modal.connect();
+                const provider = new ethers.providers.Web3Provider(connection);
+                const signer = provider.getSigner();
+                const contract = fetchContract(signer);
 
-                    return {
-                        age: singleCandidateData[0],
-                        name: singleCandidateData[1],
-                        candidateID: singleCandidateData[2].toNumber(),
-                        image: singleCandidateData[3],
-                        totalVote: singleCandidateData[4].toNumber(),
-                        ipfs: singleCandidateData[5],
-                        address: singleCandidateData[6],
-                    };
-                })
-            );
-            console.log(items, 'items')
+                const allCandidate = await contract.getCandidate();
+                const items = await Promise.all(
+                    allCandidate.map(async (el) => {
+                        const singleCandidateData = await contract.getCandidateData(el);
 
-            setCandidateArray(items);
-
-            const allCandidateLength = await contract.getCandidateLength();
-            setCandidateLength(allCandidateLength.toNumber());
+                        return {
+                            age: singleCandidateData[0],
+                            name: singleCandidateData[1],
+                            candidateID: singleCandidateData[2].toNumber(),
+                            image: singleCandidateData[3],
+                            totalVote: singleCandidateData[4].toNumber(),
+                            ipfs: singleCandidateData[5],
+                            address: singleCandidateData[6],
+                        };
+                    })
+                );
+                console.log(items, 'items')
+                setCandidateArray(items);
+                const allCandidateLength = await contract.getCandidateLength();
+                setCandidateLength(allCandidateLength.toNumber());
+            }
         } else {
             setError("Connect to wallet");
         }
